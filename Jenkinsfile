@@ -6,8 +6,8 @@ pipeline {
         IMAGE_TAG = "v${BUILD_NUMBER}"
         FULL_IMAGE = "54.81.112.24:9000/${IMAGE_NAME}:${IMAGE_TAG}"
 
-        APP_REPO_URL = "https://github.com/SUBASHREE-KB/applicationcode.git"
-        MANIFEST_REPO_URL = "https://github.com/SUBASHREE-KB/manifests.git"
+        APP_REPO_URL = "https://github.com/farhanfist10/applicationcode.git"
+        MANIFEST_REPO_URL = "https://github.com/farhanfist10/manifests.git"
         MANIFEST_REPO_BRANCH = "main"
     }
 
@@ -32,7 +32,7 @@ pipeline {
             }
             steps {
                 script {
-                    docker.withRegistry('http://13.58.246.191:5000', 'nexus-docker-credentials') {
+                    docker.withRegistry('http://54.81.112.24:9000', 'nexus-docker-credentials') {
                         docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
                     }
                 }
@@ -55,8 +55,8 @@ pipeline {
                 sed -i "s|image: .*|image: 13.58.246.191:5000/${IMAGE_NAME}:${IMAGE_TAG}|" deployment.yaml
 
                 git add deployment.yaml
-                git commit -m "Update image to 13.58.246.191:5000/${IMAGE_NAME}:${IMAGE_TAG}"
-                git push https://$TOKEN@github.com/SUBASHREE-KB/manifests.git update-image-$BUILD_NUMBER
+                git commit -m "Update image to 54.81.112.24:9000/${IMAGE_NAME}:${IMAGE_TAG}"
+                git push https://$TOKEN@github.com/farhanfist10/manifests.git update-image-$BUILD_NUMBER
                 """
             }
         }
