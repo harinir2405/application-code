@@ -27,18 +27,13 @@ pipeline {
         }
 
         stage('Push Docker Image to Nexus') {
-            environment {
-                DOCKER_CREDS = credentials('nexus-docker-credentials') // Jenkins credential ID
-            }
-            steps {
-                script {
-                    // Updated to use Nexus URL
-                    docker.withRegistry('http://3.110.55.134:8081', 'nexus-docker-credentials') {
-                        docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
-                    }
-                }
-            }
+    withCredentials([usernamePassword(credentialsId: 'docker-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+        script {
+            sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} http://3.110.55.134:8081/repository/docker-hosted/"
+            sh "docker push backend-app:v10"
         }
+    }
+}
 
         stage('Clone Manifest Repo and Update Image Tag') {
             environment {
