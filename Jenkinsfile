@@ -14,7 +14,7 @@ pipeline {
     stages {
         stage('Checkout App Repo') {
             steps {
-                git url: "${APP_REPO_URL}", branch: 'main'
+                git url: "${APP_REPO_URL}", credentialsId: 'github-credentials-id', branch: 'main'
             }
         }
 
