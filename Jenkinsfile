@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "backend-app" // Just image name, no URL here
-        IMAGE_TAG = "v${BUILD_NUMBER}"
-        FULL_IMAGE = "54.81.112.24:9000/${IMAGE_NAME}:${IMAGE_TAG}"
+        IMAGE_NAME = "backend-app"                       // Name of the Docker image
+        IMAGE_TAG = "v${BUILD_NUMBER}"                   // Tag using Jenkins build number
+        FULL_IMAGE = "54.81.112.24:8081/${IMAGE_NAME}:${IMAGE_TAG}" // Nexus IP with correct port
 
         APP_REPO_URL = "https://github.com/farhanfist10/applicationcode.git"
         MANIFEST_REPO_URL = "https://github.com/farhanfist10/manifests.git"
@@ -21,18 +21,19 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}") // Build only, locally
+                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}") // Build the Docker image locally
                 }
             }
         }
 
         stage('Push Docker Image to Nexus') {
             environment {
-                DOCKER_CREDS = credentials('nexus-docker-credentials') // ID from Jenkins credentials
+                DOCKER_CREDS = credentials('nexus-docker-credentials') // Jenkins credential ID
             }
             steps {
                 script {
-                    docker.withRegistry('http://54.81.112.24:9000', 'nexus-docker-credentials') {
+                    // Updated to use port 8081
+                    docker.withRegistry('http://54.81.112.24:8081', 'nexus-docker-credentials') {
                         docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
                     }
                 }
@@ -41,7 +42,7 @@ pipeline {
 
         stage('Clone Manifest Repo and Update Image Tag') {
             environment {
-                TOKEN = credentials('github-token')
+                TOKEN = credentials('github-token') // GitHub token to push updates
             }
             steps {
                 sh """
@@ -52,10 +53,12 @@ pipeline {
                 git config user.email "jenkins@ci.local"
 
                 git checkout -b update-image-$BUILD_NUMBER
-                sed -i "s|image: .*|image: 13.58.246.191:5000/${IMAGE_NAME}:${IMAGE_TAG}|" deployment.yaml
+
+                # Update image URL with new port 8081
+                sed -i "s|image: .*|image: 54.81.112.24:8081/${IMAGE_NAME}:${IMAGE_TAG}|" deployment.yaml
 
                 git add deployment.yaml
-                git commit -m "Update image to 54.81.112.24:9000/${IMAGE_NAME}:${IMAGE_TAG}"
+                git commit -m "Update image to 54.81.112.24:8081/${IMAGE_NAME}:${IMAGE_TAG}"
                 git push https://$TOKEN@github.com/farhanfist10/manifests.git update-image-$BUILD_NUMBER
                 """
             }
