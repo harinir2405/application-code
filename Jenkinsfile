@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = "backend-app"                       // Name of the Docker image
         IMAGE_TAG = "v${BUILD_NUMBER}"                   // Tag using Jenkins build number
-        FULL_IMAGE = "54.81.112.24:8081/${IMAGE_NAME}:${IMAGE_TAG}" // Nexus IP with correct port
+        FULL_IMAGE = "3.110.55.134:8081/${IMAGE_NAME}:${IMAGE_TAG}" // Nexus IP with correct port
 
         APP_REPO_URL = "https://github.com/harinir2405/application-code.git"
         MANIFEST_REPO_URL = "https://github.com/harinir2405/manifests.git"
@@ -32,8 +32,8 @@ pipeline {
             }
             steps {
                 script {
-                    // Updated to use port 8081
-                    docker.withRegistry('http://54.81.112.24:8081', 'nexus-docker-credentials') {
+                    // Updated to use Nexus URL
+                    docker.withRegistry('http://3.110.55.134:8081', 'nexus-docker-credentials') {
                         docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
                     }
                 }
@@ -55,11 +55,11 @@ pipeline {
                 git checkout -b update-image-$BUILD_NUMBER
 
                 # Update image URL with new port 8081
-                sed -i "s|image: .*|image: 54.81.112.24:8081/${IMAGE_NAME}:${IMAGE_TAG}|" deployment.yaml
+                sed -i "s|image: .*|image: 3.110.55.134:8081/${IMAGE_NAME}:${IMAGE_TAG}|" deployment.yaml
 
                 git add deployment.yaml
-                git commit -m "Update image to 54.81.112.24:8081/${IMAGE_NAME}:${IMAGE_TAG}"
-                git push https://$TOKEN@github.com/farhanfist10/manifests.git update-image-$BUILD_NUMBER
+                git commit -m "Update image to 3.110.55.134:8081/${IMAGE_NAME}:${IMAGE_TAG}"
+                git push https://$TOKEN@github.com/harinir2405/manifests.git update-image-$BUILD_NUMBER
                 """
             }
         }
