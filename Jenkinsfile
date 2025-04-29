@@ -6,8 +6,8 @@ pipeline {
         IMAGE_TAG = "v${BUILD_NUMBER}"                   // Tag using Jenkins build number
         FULL_IMAGE = "54.81.112.24:8081/${IMAGE_NAME}:${IMAGE_TAG}" // Nexus IP with correct port
 
-        APP_REPO_URL = "https://github.com/farhanfist10/applicationcode.git"
-        MANIFEST_REPO_URL = "https://github.com/farhanfist10/manifests.git"
+        APP_REPO_URL = "https://github.com/harinir2405/applicationcode.git"
+        MANIFEST_REPO_URL = "https://github.com/harinir2405/manifests.git"
         MANIFEST_REPO_BRANCH = "main"
     }
 
